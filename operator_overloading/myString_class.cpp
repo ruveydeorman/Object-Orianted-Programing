@@ -1,5 +1,6 @@
 #include<iostream>
 #include<cstring>
+#include<vector>
 class myString{
 private:
     char* data;
@@ -63,8 +64,8 @@ public:
     friend bool operator>(const myString& left,const myString& right);
     friend bool operator<=(const myString& left,const myString& right);
     friend bool operator>=(const myString& left,const myString& right);
-    friend std::ostream& operator<<(std::ostream& os ,const myString& other);
-    friend std::istream& operator>>(std::istream& is,const myString& other);
+    friend std::ostream& operator<<(std::ostream& os ,const myString& s);
+    friend std::istream& operator>>(std::istream& is, myString& s);
     operator char*()const{
         return data;
     }
@@ -98,22 +99,45 @@ bool operator<=(const myString&left,const myString& right){
 bool operator>=(const myString& left,const myString& right){
     return std::strcmp(left.data,right.data)>=0;
 }
-std::ostream& operator<<(std::ostream& os,const myString& other){
-    os<<other.data;
+std::ostream& operator<<(std::ostream& os,const myString& s){
+    os<<s.data;
     return os;
 }
-std::istream& operator>>(std::istream& is,const myString& other){
-    is>>other.data;
-    retrun is;
+std::istream& operator>>(std::istream& is, myString& s){
+    //geçici buffer
+    std::vector<char>buffer;
+    char ch;
+    while(is.get(ch)&&std::isspace(ch)){ //akıştaki karakaterleri okur ve boşluk karakteri kontrolü yapar boşluk karakteri atlanır
+        //boşlukları atlar
+    }
+    if(is){
+        buffer.push_back(ch);
+        while(is.get(ch)&&!std::isspace(ch)){
+            buffer.push_back(ch);
+        }
+        if(is){
+            is.unget();//aldığı son karakteri bırakır içine argüman yazılmaz
+        }
+    }
+    delete[] s.data;
+    s.length=buffer.size();
+    s.data=new char[s.length+1];
+    for(size_t i=0;i<s.length;++i){
+        s.data[i]=buffer[i];
+    }
+    s.data[s.length]='\0';
+    
+    return is;
 }
 int main(){
 myString s("ruveyde");
 myString n("orman");
-myString str;
+myString str,x;
 str=s;
 s+=n;
-s.print();
-str.print();
+std::cin>>x;
+std::cout<<x<<std::endl;
+std::cout<<s<<std::endl;
 if(str==s){
     std::cout<<"str equal to s"<<std::endl;
 }else{
@@ -127,3 +151,4 @@ if(str==n){
 
 
 }
+
